@@ -1,0 +1,49 @@
+#!/bin/bash
+createtestfile() {
+  local problem=$1
+  local paddedProblem=$(printf "%03d" $problem)
+
+  if [[ -z $problem ]]; then
+    echo "Missing problem number to create test."
+    exit 1
+  fi
+
+  local problemdir="src/test/kotlin/dev/garlicbread/euler/problems/"
+  if [[ ! -e "$problemdir" ]]; then
+    mkdir "$problemdir"
+  fi
+
+  local file="${problemdir}Problem${paddedProblem}Test.kt"
+  if [[ -e $file ]]; then
+    read -p "File exists: ${file}. Overwrite? (y/N) " -r overwrite
+    [[ "$overwrite" =~ ^[yY]$ ]] || return 1
+  fi
+
+  echo "Creating test class: $file"
+  echo "package dev.garlicbread.euler.problems
+
+import com.google.common.truth.Truth
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+
+@DisplayName(\"Project Euler Problem ${problem}\")
+internal class Problem${paddedProblem}Test {
+
+    @Test
+    @DisplayName(\"Example Input 1\")
+    fun \`Matches example 1\`() {
+        val answer = Problem${paddedProblem}(problemInput = TODO()).solveProblem()
+        Truth.assertThat(answer).isEqualTo(TODO())
+    }
+
+    @Test
+    @DisplayName(\"Actual Input\")
+    fun \`Matches Actual\`() {
+        val answer = Problem${paddedProblem}().solveProblem()
+        Truth.assertThat(answer).isEqualTo(TODO())
+    }
+}
+" >"${file}"
+
+  return $?
+}

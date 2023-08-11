@@ -1,0 +1,36 @@
+#!/bin/bash
+
+usage() {
+  echo "Usage: puzzle <problem> [<type>]
+  <problem> - number denoting the number of the puzzle
+  <type> - return type for the solution of the first part of the puzzle, default - Any"
+}
+
+invalidparam() {
+  echo "$1"
+  usage
+  exit 1
+}
+
+if [[ -z $1 || -n $2  ]]; then
+  usage
+  exit 1
+fi
+
+PROBLEM=$1
+TYPE=${2:-Int}
+
+[[ $PROBLEM =~ ^[0-9]{1,4}$ ]] || invalidparam "Invalid problem number."
+
+echo "Creating puzzle for Project Euler problem #$PROBLEM..."
+source tools/createproblemfile
+
+createproblemfile $PROBLEM $TYPE
+
+if [[ $? -eq 0 ]]; then
+  getinput
+  source tools/createtestfiles
+  createtestfile $PROBLEM
+fi
+
+echo "All done! Happy coding!"

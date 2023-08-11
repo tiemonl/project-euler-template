@@ -1,0 +1,45 @@
+#!/bin/bash
+
+createproblemfile() {
+  local problem=$1
+  local paddedProblem=$(printf "%03d" $problem)
+  local type=${2:-Int}
+  local package="dev.garlicbread.euler"
+
+  if [[ -z $problem ]]; then
+    echo "Missing params."
+    exit 1
+  fi
+
+  local problemdir="src/main/kotlin/dev/garlicbread/euler/problems/"
+  if [[ ! -e "$problemdir" ]]; then
+    mkdir "$problemdir"
+  fi
+
+  local file="${problemdir}Problem$paddedProblem.kt"
+  if [[ -e $file ]]; then
+    read -p "File exists: ${file}. Overwrite? (y/N) " -r overwrite
+    [[ "$overwrite" =~ ^[yY]$ ]] || return 0
+  fi
+
+  echo "Creating problem class: $file"
+  echo "package $package.problems
+
+import ${package}.Problem
+import ${package}.solve
+
+fun main() = solve { Problem${paddedProblem}() }
+
+class Problem${paddedProblem}(
+    problemInput: Int = TODO()
+) : Problem<${type}>(
+    problem = $problem
+) {
+    override val input = problemInput
+
+    override fun solveProblem(): ${type} {
+        return 0
+    }
+}" > "${file}"
+
+}
